@@ -14,7 +14,8 @@ jobs:
       - run:
           name: Test
           command: |
-            go build -mod=vendor
+            GOPROXY=https://proxy.golang.org
+            go build
             ./aws-okta version
 
   test:
@@ -37,11 +38,10 @@ jobs:
           command: |
             export GO111MODULE=on
             go mod tidy
-            go mod vendor
             if [ "$(git status --porcelain)" != "" ]; then
               echo "git tree is dirty after tidying and vendoring modules"
-              echo "ensure go.mod and go.sum are tidy and vendor is checked in"
-              git status
+              echo "ensure go.mod and go.sum are tidy and checked in"
+              git status -vv
               exit 1
             fi
 
