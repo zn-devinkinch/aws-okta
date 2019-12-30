@@ -24,6 +24,14 @@ Shout-out to the fine maintainers of [the core formula](https://github.com/Homeb
 
 See [docs/windows.md](docs/windows.md) for information on getting this working with Windows.
 
+## Versions
+
+Versions in the 0.x series are deprecated entirely. v1.x is designed to be backwards compatible with the final release of v0.x.
+
+v1.x is in maintenance mode. Only fixes will be merged and released.
+
+v2.x is in development. See [https://github.com/segmentio/aws-okta/projects/1](the v2.0.0 project for progress).
+
 ## Usage
 
 ### Adding Okta credentials
