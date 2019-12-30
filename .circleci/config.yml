@@ -36,6 +36,9 @@ jobs:
       - run:
           name: Check modules are tidy and checked in
           command: |
+            # reset to HEAD because sometimes `make test` can
+            # change go.mod :eyeroll:
+            git reset --hard HEAD
             export GO111MODULE=on
             go mod tidy
             if [ "$(git status --porcelain)" != "" ]; then
