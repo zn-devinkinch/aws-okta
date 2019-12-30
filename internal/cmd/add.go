@@ -8,7 +8,7 @@ import (
 
 	"github.com/99designs/keyring"
 	analytics "github.com/segmentio/analytics-go"
-	"github.com/segmentio/aws-okta/lib"
+	"github.com/segmentio/aws-okta/internal/lib"
 	"github.com/spf13/cobra"
 )
 
@@ -91,11 +91,11 @@ func add(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
-	
+
 	if oktaAccountName == "" {
-	    oktaAccountName = "okta-creds"
+		oktaAccountName = "okta-creds"
 	} else {
-	    oktaAccountName = "okta-creds-" + oktaAccountName
+		oktaAccountName = "okta-creds-" + oktaAccountName
 	}
 	log.Debugf("Keyring key: %s", oktaAccountName)
 

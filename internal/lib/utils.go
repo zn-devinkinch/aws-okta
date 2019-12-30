@@ -5,13 +5,13 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"regexp"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 
-	"github.com/segmentio/aws-okta/lib/saml"
+	"github.com/segmentio/aws-okta/internal/lib/saml"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
 )

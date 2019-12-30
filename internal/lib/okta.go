@@ -20,8 +20,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/segmentio/aws-okta/lib/mfa"
-	"github.com/segmentio/aws-okta/lib/saml"
+	"github.com/segmentio/aws-okta/internal/lib/mfa"
+	"github.com/segmentio/aws-okta/internal/lib/saml"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -75,7 +75,7 @@ type OktaCreds struct {
 }
 
 type OktaCookies struct {
-	Session string
+	Session     string
 	DeviceToken string
 }
 
