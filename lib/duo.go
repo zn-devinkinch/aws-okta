@@ -259,16 +259,6 @@ func (d *DuoClient) DoAuth(tx string, inputSid string, inputCertsURL string, inp
 		data.Set("sid", inputSid)
 		data.Set("certs_url", inputCertsURL)
 		data.Set("certifier_url", inputCertifierURL)
-		data.Set("referer", "https://zenefits.okta.com/signin/verify/duo/web")
-	} else {
-		data.Set("java_version", "")
-		data.Set("flash_version", "")
-		data.Set("screen_resolution_width", "1680")
-		data.Set("screen_resolution_height", "1050")
-		data.Set("color_depth", "24")
-		data.Set("is_cef_browser", "false")
-		data.Set("is_ipad_os", "false")
-		data.Set("referer", "https://zenefits.okta.com/signin/verify/duo/web")
 	}
 
 	req, err = http.NewRequest("POST", url, strings.NewReader(data.Encode()))
@@ -278,7 +268,6 @@ func (d *DuoClient) DoAuth(tx string, inputSid string, inputCertsURL string, inp
 
 	req.Header.Add("Origin", "https://"+d.Host)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Referer", "https://zenefits.okta.com/signin/verify/duo/web")
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -301,13 +290,8 @@ func (d *DuoClient) DoAuth(tx string, inputSid string, inputCertsURL string, inp
 		sid, _ = GetNode(doc, "sid")
 		certsURL, _ := GetNode(doc, "certs_url")
 		certifierURL, _ := GetNode(doc, "certifier_url")
-		err = d.DoTrust(sid, certsURL, certifierURL)
-		if err != nil {
-			err = fmt.Errorf("Trust call failed")
-		}
-		err = d.DoPing()
-		if err != nil {
-			err = fmt.Errorf("Ping call failed")
+		if certifierURL != "" {
+			d.DoTrust(sid, certsURL, certifierURL)
 		}
 		sid, err = d.DoAuth(tx, sid, certsURL, certifierURL)
 	} else {
@@ -317,6 +301,10 @@ func (d *DuoClient) DoAuth(tx string, inputSid string, inputCertsURL string, inp
 	return
 }
 
+// DoTrust sends a GET request to the Duo Certifier (default at https://localhost:15310)
+//
+// If successful, the client should pass the device trust verification. You need to install
+// the client from https://dl.duosecurity.com/macos_certifier-latest.pkg first.
 func (d *DuoClient) DoTrust(inputSid string, inputCertsURL string, inputCertifierURL string) (err error) {
 	var req *http.Request
 
@@ -324,6 +312,7 @@ func (d *DuoClient) DoTrust(inputSid string, inputCertsURL string, inputCertifie
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
+		Timeout: 5 * time.Second,
 	}
 
 	certsURL := fmt.Sprintf(
@@ -346,47 +335,15 @@ func (d *DuoClient) DoTrust(inputSid string, inputCertsURL string, inputCertifie
 
 	res, err := client.Do(req)
 	if err != nil {
+		err = fmt.Errorf("Failed to connect to Certifier: %s", inputCertifierURL)
+		log.Debug(err)
 		return
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		err = fmt.Errorf("Certifier validation failed: %d", res.StatusCode)
-	}
-
-	return
-}
-
-func (d *DuoClient) DoPing() (err error) {
-	var req *http.Request
-
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-
-	pingURL := fmt.Sprintf(
-		"https://%s/auth/v2/ping",
-		d.Host,
-	)
-
-	req, err = http.NewRequest("GET", pingURL, nil)
-	if err != nil {
-		return
-	}
-
-	req.Header.Add("Origin", "https://"+d.Host)
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		err = fmt.Errorf("Auth ping failed: %d", res.StatusCode)
+		err = fmt.Errorf("Request to certifier failed: %d", res.StatusCode)
+		log.Debug(err)
 	}
 
 	return
