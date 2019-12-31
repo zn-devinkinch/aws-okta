@@ -10,7 +10,7 @@ LDFLAGS := -ldflags='-X "main.Version=$(VERSION)"'
 test:
 	GO111MODULE=on go test -mod=vendor -v ./...
 
-all: dist/aws-okta-$(VERSION)-darwin-amd64 dist/aws-okta-$(VERSION)-linux-amd64
+all: dist/aws-okta-$(VERSION)-darwin-amd64
 
 clean:
 	rm -rf ./dist
